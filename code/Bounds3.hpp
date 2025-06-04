@@ -93,10 +93,53 @@ class Bounds3
 inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
                                 const std::array<int, 3>& dirIsNeg) const
 {
-    // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
+    // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster than Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
 
+    // Use the slab method for ray-AABB intersection
+    // For each axis, compute the intersection with the two planes
+    
+    // Get the bounds based on ray direction
+    // If ray direction is negative, we need to swap min and max
+    Vector3f bounds[2] = {pMin, pMax};
+    
+    // Calculate t values for intersection with X slabs
+    float t_min = (bounds[dirIsNeg[0]].x - ray.origin.x) * invDir.x;
+    float t_max = (bounds[1 - dirIsNeg[0]].x - ray.origin.x) * invDir.x;
+    
+    // Calculate t values for intersection with Y slabs
+    float ty_min = (bounds[dirIsNeg[1]].y - ray.origin.y) * invDir.y;
+    float ty_max = (bounds[1 - dirIsNeg[1]].y - ray.origin.y) * invDir.y;
+    
+    // Check if ray misses the box
+    if (t_min > ty_max || ty_min > t_max)
+        return false;
+        
+    // Update t_min and t_max
+    if (ty_min > t_min)
+        t_min = ty_min;
+    if (ty_max < t_max)
+        t_max = ty_max;
+    
+    // Calculate t values for intersection with Z slabs
+    float tz_min = (bounds[dirIsNeg[2]].z - ray.origin.z) * invDir.z;
+    float tz_max = (bounds[1 - dirIsNeg[2]].z - ray.origin.z) * invDir.z;
+    
+    // Check if ray misses the box
+    if (t_min > tz_max || tz_min > t_max)
+        return false;
+        
+    // Update t_min and t_max
+    if (tz_min > t_min)
+        t_min = tz_min;
+    if (tz_max < t_max)
+        t_max = tz_max;
+    
+    // Check if intersection is in valid range
+    // We need t_max >= 0 (intersection in front of ray)
+    // and t_max >= t_min (valid intersection interval)
+    return t_max >= 0;
 }
 
 inline Bounds3 Union(const Bounds3& b1, const Bounds3& b2)

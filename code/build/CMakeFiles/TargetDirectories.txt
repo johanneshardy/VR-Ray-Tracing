@@ -1,0 +1,3 @@
+C:/Users/Johannes Hardy/OneDrive/Documents/Ray Tracing/code/build/CMakeFiles/RayTracing.dir
+C:/Users/Johannes Hardy/OneDrive/Documents/Ray Tracing/code/build/CMakeFiles/edit_cache.dir
+C:/Users/Johannes Hardy/OneDrive/Documents/Ray Tracing/code/build/CMakeFiles/rebuild_cache.dir

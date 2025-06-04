@@ -216,11 +216,45 @@ inline Bounds3 Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
 inline Intersection Triangle::getIntersection(Ray ray)
 {
     Intersection inter;
-    // TODO find ray triangle intersection
-
-
-
-
+    
+    // Möller-Trumbore ray-triangle intersection algorithm
+    Vector3f edge1 = v1 - v0;
+    Vector3f edge2 = v2 - v0;
+    Vector3f h = crossProduct(ray.direction, edge2);
+    float a = dotProduct(edge1, h);
+    
+    // Ray is parallel to triangle
+    if (a > -EPSILON && a < EPSILON)
+        return inter;
+    
+    float f = 1.0 / a;
+    Vector3f s = ray.origin - v0;
+    float u = f * dotProduct(s, h);
+    
+    // Check if intersection point is outside triangle
+    if (u < 0.0 || u > 1.0)
+        return inter;
+    
+    Vector3f q = crossProduct(s, edge1);
+    float v = f * dotProduct(ray.direction, q);
+    
+    // Check if intersection point is outside triangle
+    if (v < 0.0 || u + v > 1.0)
+        return inter;
+    
+    // Compute t to find intersection point
+    float t = f * dotProduct(edge2, q);
+    
+    // Ray intersection found
+    if (t > EPSILON) {
+        inter.happened = true;
+        inter.coords = ray.origin + t * ray.direction;
+        inter.normal = normalize(crossProduct(edge1, edge2));
+        inter.distance = t;
+        inter.obj = this;
+        inter.m = this->m;
+    }
+    
     return inter;
 }
 
