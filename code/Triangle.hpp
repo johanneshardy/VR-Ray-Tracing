@@ -217,42 +217,38 @@ inline Intersection Triangle::getIntersection(Ray ray)
 {
     Intersection inter;
     
-    // Möller-Trumbore ray-triangle intersection algorithm
+    // Use Möller-Trumbore ray-triangle intersection algorithm
     Vector3f edge1 = v1 - v0;
     Vector3f edge2 = v2 - v0;
     Vector3f h = crossProduct(ray.direction, edge2);
     float a = dotProduct(edge1, h);
     
     // Ray is parallel to triangle
-    if (a > -EPSILON && a < EPSILON)
+    if (a > -0.00001f && a < 0.00001f)
         return inter;
     
-    float f = 1.0 / a;
+    float f = 1.0f / a;
     Vector3f s = ray.origin - v0;
     float u = f * dotProduct(s, h);
     
-    // Check if intersection point is outside triangle
-    if (u < 0.0 || u > 1.0)
+    if (u < 0.0f || u > 1.0f)
         return inter;
     
     Vector3f q = crossProduct(s, edge1);
     float v = f * dotProduct(ray.direction, q);
     
-    // Check if intersection point is outside triangle
-    if (v < 0.0 || u + v > 1.0)
+    if (v < 0.0f || u + v > 1.0f)
         return inter;
     
-    // Compute t to find intersection point
     float t = f * dotProduct(edge2, q);
     
-    // Ray intersection found
-    if (t > EPSILON) {
+    if (t > 0.00001f) { // Ray intersection
         inter.happened = true;
-        inter.coords = ray.origin + t * ray.direction;
-        inter.normal = normalize(crossProduct(edge1, edge2));
         inter.distance = t;
+        inter.coords = ray.origin + t * ray.direction;
+        inter.normal = normal;
+        inter.m = m;
         inter.obj = this;
-        inter.m = this->m;
     }
     
     return inter;

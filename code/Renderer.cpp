@@ -25,22 +25,12 @@ void Renderer::Render(const Scene& scene, bool check_mode)
     
     for (uint32_t j = 0; j < scene.height; ++j) {
         for (uint32_t i = 0; i < scene.width; ++i) {
-            // TODO: Find the x and y positions of the current pixel to get the
-            // direction vector that passes through it.
-            // Also, don't forget to multiply both of them with the variable
-            // *scale*, and x (horizontal) variable with the *imageAspectRatio*
-
-            // Don't forget to normalize this direction!
+            // Convert pixel coordinates to normalized device coordinates [-1, 1]
+            float x = (2 * (i + 0.5f) / (float)scene.width - 1) * imageAspectRatio * scale;
+            float y = (1 - 2 * (j + 0.5f) / (float)scene.height) * scale;
             
-            // Convert pixel coordinates to normalized device coordinates (NDC)
-            // NDC range: x from -1 to 1, y from -1 to 1
-            float x = (2 * (i + 0.5) / (float)scene.width - 1) * imageAspectRatio * scale;
-            float y = (1 - 2 * (j + 0.5) / (float)scene.height) * scale;
-            
-            // Create ray direction vector
-            Vector3f dir = normalize(Vector3f(x, y, -1)); // Camera looks along negative z
-            
-            // Create ray from eye position through the pixel
+            // Create ray direction from camera to pixel
+            Vector3f dir = normalize(Vector3f(x, y, -1)); // Camera looks down -Z
             Ray ray(eye_pos, dir);
 
             if(check_mode)
